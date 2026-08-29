@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -7,8 +8,12 @@ public class CoinManager : MonoBehaviour
 
     public TextMeshProUGUI contadorTexto;
 
+    private Coin[] moedas;
+
     private int moedasColetadas = 0;
     private int totalMoedas = 0;
+
+    private HashSet<string> moedasColetadasIDs = new HashSet<string>();
 
     private void Awake()
     {
@@ -24,15 +29,25 @@ public class CoinManager : MonoBehaviour
 
     private void Start()
     {
-        Coin[] moedas = FindObjectsByType<Coin>(FindObjectsSortMode.None);
-
-        totalMoedas = moedas.Length;
+        EncontrarMoedas();
 
         AtualizarInterface();
     }
 
+    private void EncontrarMoedas()
+    {
+        moedas = FindObjectsByType<Coin>(FindObjectsSortMode.None);
+
+        totalMoedas = moedas.Length;
+    }
+
     public void ColetarMoeda(Coin moeda)
     {
+        if (moedasColetadasIDs.Contains(moeda.GetID()))
+            return;
+
+        moedasColetadasIDs.Add(moeda.GetID());
+
         moedasColetadas++;
 
         AtualizarInterface();
@@ -45,9 +60,58 @@ public class CoinManager : MonoBehaviour
         return moedasColetadas;
     }
 
+    public HashSet<string> GetMoedasColetadasIDs()
+    {
+        return new HashSet<string>(moedasColetadasIDs);
+    }
+
     public void DefinirMoedas(int quantidade)
     {
         moedasColetadas = quantidade;
+
+        AtualizarInterface();
+    }
+
+    public void DefinirMoedasColetadas(HashSet<string> ids)
+    {
+        moedasColetadasIDs = new HashSet<string>(ids);
+
+        moedasColetadas = moedasColetadasIDs.Count;
+
+        foreach (Coin moeda in moedas)
+        {
+            if (moedasColetadasIDs.Contains(moeda.GetID()))
+            {
+                moeda.MarcarComoColetada();
+            }
+            else
+            {
+                moeda.Restaurar();
+            }
+        }
+
+        AtualizarInterface();
+    }
+
+    public void RestaurarMoedasDoCheckpoint(
+        HashSet<string> idsCheckpoint,
+        int quantidadeCheckpoint)
+    {
+        moedasColetadasIDs = new HashSet<string>(idsCheckpoint);
+
+        moedasColetadas = quantidadeCheckpoint;
+
+        foreach (Coin moeda in moedas)
+        {
+            if (moedasColetadasIDs.Contains(moeda.GetID()))
+            {
+                moeda.MarcarComoColetada();
+            }
+            else
+            {
+                moeda.Restaurar();
+            }
+        }
 
         AtualizarInterface();
     }
@@ -56,7 +120,8 @@ public class CoinManager : MonoBehaviour
     {
         if (contadorTexto != null)
         {
-            contadorTexto.text = moedasColetadas + "/" + totalMoedas;
+            contadorTexto.text =
+                moedasColetadas + "/" + totalMoedas;
         }
     }
 }
