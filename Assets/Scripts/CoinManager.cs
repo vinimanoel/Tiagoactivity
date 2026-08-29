@@ -40,6 +40,18 @@ public class CoinManager : MonoBehaviour
         Debug.Log("Moedas: " + moedasColetadas + "/" + totalMoedas);
     }
 
+    public int GetMoedas()
+    {
+        return moedasColetadas;
+    }
+
+    public void DefinirMoedas(int quantidade)
+    {
+        moedasColetadas = quantidade;
+
+        AtualizarInterface();
+    }
+
     private void AtualizarInterface()
     {
         if (contadorTexto != null)
