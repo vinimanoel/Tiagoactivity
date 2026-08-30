@@ -22,10 +22,8 @@ public class SaveManager : MonoBehaviour
     {
         SaveData data = new SaveData();
 
-        // Fase atual
         data.fase = 1;
 
-        // Verifica se existe checkpoint
         if (CheckpointManager.Instance != null &&
             CheckpointManager.Instance.TemCheckpoint())
         {
@@ -90,4 +88,44 @@ public class SaveManager : MonoBehaviour
     {
         SaveSystem.DeleteSave(slot);
     }
+    public void RestaurarSave(SaveData data)
+    {
+        if (data == null)
+            return;
+
+        if (!data.checkpointAtivado)
+        {
+            Debug.Log("O save não possui checkpoint.");
+            return;
+        }
+
+        Vector3 posicaoCheckpoint =
+            new Vector3(
+                data.checkpointX,
+                data.checkpointY,
+                data.checkpointZ
+            );
+
+        HashSet<string> moedasColetadas =
+            new HashSet<string>(
+                data.moedasColetadas
+            );
+
+        CheckpointManager.Instance.RestaurarCheckpoint(
+            posicaoCheckpoint,
+            data.moedasNoCheckpoint,
+            moedasColetadas
+        );
+
+        if (CoinManager.Instance != null)
+        {
+            CoinManager.Instance.RestaurarMoedasDoCheckpoint(
+                moedasColetadas,
+                data.moedasNoCheckpoint
+            );
+        }
+
+        Debug.Log("Save restaurado com sucesso!");
+    }
+
 }

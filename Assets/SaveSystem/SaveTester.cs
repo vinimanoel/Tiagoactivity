@@ -30,26 +30,19 @@ public class SaveTester : MonoBehaviour
         if (data == null)
             return;
 
-        Debug.Log("===== SAVE =====");
-        Debug.Log("Fase: " + data.fase);
-        Debug.Log("Checkpoint ativado: " +
-                  data.checkpointAtivado);
+        SaveManager.Instance.RestaurarSave(data);
 
+        Debug.Log("===== SAVE RESTAURADO =====");
+
+        Debug.Log("Fase: " + data.fase);
         Debug.Log(
-            "Posição: " +
-            data.checkpointX + ", " +
-            data.checkpointY + ", " +
-            data.checkpointZ
+            "Checkpoint: " +
+            data.checkpointAtivado
         );
 
         Debug.Log(
             "Moedas: " +
             data.moedasNoCheckpoint
-        );
-
-        Debug.Log(
-            "Moedas coletadas: " +
-            data.moedasColetadas.Count
         );
     }
 }

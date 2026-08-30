@@ -43,4 +43,45 @@ public class CheckpointManager : MonoBehaviour
     {
         return checkpointAtual.GetMoedasColetadas();
     }
+
+    public void RestaurarCheckpoint(
+        Vector3 posicao,
+        int moedas,
+        HashSet<string> moedasColetadas)
+    {
+        checkpointAtual = null;
+
+        Checkpoint[] checkpoints =
+            FindObjectsByType<Checkpoint>(
+                FindObjectsSortMode.None
+            );
+
+        foreach (Checkpoint checkpoint in checkpoints)
+        {
+            if (Vector3.Distance(
+                checkpoint.GetPosicao(),
+                posicao
+            ) < 0.1f)
+            {
+                checkpointAtual = checkpoint;
+                break;
+            }
+        }
+
+        if (checkpointAtual != null)
+        {
+            checkpointAtual.RestaurarDados(
+                moedas,
+                moedasColetadas
+            );
+
+            Debug.Log("Checkpoint restaurado!");
+        }
+        else
+        {
+            Debug.LogWarning(
+                "Checkpoint salvo não encontrado na cena."
+            );
+        }
+    }
 }

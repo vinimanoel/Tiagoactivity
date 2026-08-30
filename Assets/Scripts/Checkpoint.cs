@@ -5,6 +5,8 @@ public class Checkpoint : MonoBehaviour
 {
     public Transform pontoRespawn;
 
+    public int slotSave = 0;
+
     private bool ativado = false;
 
     private Vector3 posicaoCheckpoint;
@@ -44,6 +46,8 @@ public class Checkpoint : MonoBehaviour
 
         CheckpointManager.Instance.AtivarCheckpoint(this);
 
+        SaveManager.Instance.SalvarJogo(slotSave);
+
         Debug.Log("Checkpoint ativado!");
 
         Debug.Log(
@@ -73,4 +77,17 @@ public class Checkpoint : MonoBehaviour
     {
         return ativado;
     }
+
+    public void RestaurarDados(
+    int moedas,
+    HashSet<string> moedasColetadas)
+    {
+        ativado = true;
+
+        moedasNoCheckpoint = moedas;
+
+        moedasColetadasNoCheckpoint =
+            new HashSet<string>(moedasColetadas);
+    }
+
 }
