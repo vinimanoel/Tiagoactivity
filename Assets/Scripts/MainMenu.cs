@@ -4,13 +4,11 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+
+    public static bool abrirSlotsAoEntrar = false; 
     public GameObject painelSlots;
 
-    private void Start()
-    {
-        // Garante que o painel de slots começa fechado
-        painelSlots.SetActive(false);
-    }
+    private void Start() { painelSlots.SetActive(false); if (abrirSlotsAoEntrar) { painelSlots.SetActive(true); abrirSlotsAoEntrar = false; Debug.Log("Painel de slots aberto automaticamente."); } }
 
     public void NovoJogo()
     {

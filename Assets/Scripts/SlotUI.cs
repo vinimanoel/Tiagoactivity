@@ -1,6 +1,8 @@
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class SlotUI : MonoBehaviour
 {
@@ -49,7 +51,10 @@ public class SlotUI : MonoBehaviour
             textoInformacoes.text =
                 "VAZIO";
 
-            botaoCarregar.interactable = false;
+            if (botaoCarregar != null)
+            {
+                botaoCarregar.interactable = false;
+            }
 
             if (botaoApagar != null)
             {
@@ -67,7 +72,10 @@ public class SlotUI : MonoBehaviour
             textoInformacoes.text =
                 "SAVE INVÁLIDO";
 
-            botaoCarregar.interactable = false;
+            if (botaoCarregar != null)
+            {
+                botaoCarregar.interactable = false;
+            }
 
             if (botaoApagar != null)
             {
@@ -85,7 +93,10 @@ public class SlotUI : MonoBehaviour
             "\nMoedas: " +
             data.moedasNoCheckpoint;
 
-        botaoCarregar.interactable = true;
+        if (botaoCarregar != null)
+        {
+            botaoCarregar.interactable = true;
+        }
 
         if (botaoApagar != null)
         {
@@ -100,6 +111,15 @@ public class SlotUI : MonoBehaviour
             (numeroSlot + 1)
         );
 
+        if (SaveManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "SaveManager não encontrado."
+            );
+
+            return;
+        }
+
         SaveData data =
             SaveManager.Instance.CarregarJogo(numeroSlot);
 
@@ -112,12 +132,28 @@ public class SlotUI : MonoBehaviour
             return;
         }
 
-        SaveManager.Instance.RestaurarSave(data);
+        if (SaveLoader.Instance == null)
+        {
+            Debug.LogWarning(
+                "SaveLoader não encontrado."
+            );
+
+            return;
+        }
+
+        // Guarda o save para restaurar depois que a Fase1 carregar
+        SaveLoader.Instance.PrepararSave(data);
+
+        // Garante que o jogo não fique pausado
+        Time.timeScale = 1f;
+
+        // Vai para a Fase1
+        SceneManager.LoadScene("Fase1");
 
         Debug.Log(
             "Slot " +
             (numeroSlot + 1) +
-            " carregado!"
+            " preparado para carregamento!"
         );
     }
 
@@ -127,6 +163,15 @@ public class SlotUI : MonoBehaviour
             "Apagando Slot " +
             (numeroSlot + 1)
         );
+
+        if (SaveManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "SaveManager não encontrado."
+            );
+
+            return;
+        }
 
         SaveManager.Instance.ApagarSave(numeroSlot);
 
@@ -139,3 +184,4 @@ public class SlotUI : MonoBehaviour
         );
     }
 }
+

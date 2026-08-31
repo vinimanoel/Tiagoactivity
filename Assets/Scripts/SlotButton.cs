@@ -38,7 +38,15 @@ public class SlotButton : MonoBehaviour
 
     private void CarregarSlot()
     {
-        Debug.Log("Carregando Slot " + (slot + 1));
+        if (SaveManager.Instance == null)
+        {
+            Debug.LogWarning("SaveManager não encontrado.");
+            return;
+        }
+
+        Debug.Log(
+            "Carregando Slot " + (slot + 1)
+        );
 
         SaveData data =
             SaveManager.Instance.CarregarJogo(slot);
@@ -52,11 +60,14 @@ public class SlotButton : MonoBehaviour
             return;
         }
 
-        // Guarda o save para restaurar depois que a cena carregar
+        // Prepara o save para ser restaurado na Fase1
         SaveLoader.Instance.PrepararSave(data);
 
+        // Garante que o jogo não continue pausado
+        Time.timeScale = 1f;
+
+        // Vai para a Fase1
         SceneManager.LoadScene("Fase1");
     }
 }
-
 

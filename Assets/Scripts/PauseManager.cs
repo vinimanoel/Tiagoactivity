@@ -86,18 +86,7 @@ public class PauseManager : MonoBehaviour
         Debug.Log("Jogo continuando.");
     }
 
-    public void SalvarJogo()
-    {
-        if (SaveManager.Instance == null)
-        {
-            Debug.LogWarning("SaveManager não encontrado.");
-            return;
-        }
-
-        SaveManager.Instance.SalvarJogo(0);
-
-        Debug.Log("Jogo salvo pelo Pause.");
-    }
+   public void SalvarJogo() { Time.timeScale = 1f; MainMenu.abrirSlotsAoEntrar = true; Debug.Log("Indo para o Menu para escolher o slot de save."); SceneManager.LoadScene("Menu"); }
 
     public void CarregarJogo()
     {
