@@ -1,13 +1,15 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    public GameObject botaoContinuar;
+    public GameObject painelSlots;
 
     private void Start()
     {
-        botaoContinuar.SetActive(false);
+        // Garante que o painel de slots começa fechado
+        painelSlots.SetActive(false);
     }
 
     public void NovoJogo()
@@ -17,7 +19,9 @@ public class MainMenu : MonoBehaviour
 
     public void CarregarJogo()
     {
-        Debug.Log("Abrir tela de carregamento.");
+        painelSlots.SetActive(true);
+
+        Debug.Log("Painel de slots aberto.");
     }
 
     public void SairDoJogo()
@@ -27,3 +31,4 @@ public class MainMenu : MonoBehaviour
         Application.Quit();
     }
 }
+

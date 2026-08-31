@@ -1,5 +1,7 @@
+
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
 {
@@ -70,7 +72,7 @@ public class PauseManager : MonoBehaviour
         Debug.Log("Jogo pausado.");
     }
 
-    private void ContinuarJogo()
+    public void ContinuarJogo()
     {
         jogoPausado = false;
 
@@ -82,5 +84,36 @@ public class PauseManager : MonoBehaviour
         }
 
         Debug.Log("Jogo continuando.");
+    }
+
+    public void SalvarJogo()
+    {
+        if (SaveManager.Instance == null)
+        {
+            Debug.LogWarning("SaveManager não encontrado.");
+            return;
+        }
+
+        SaveManager.Instance.SalvarJogo(0);
+
+        Debug.Log("Jogo salvo pelo Pause.");
+    }
+
+    public void CarregarJogo()
+    {
+        Time.timeScale = 1f;
+
+        Debug.Log("Voltando ao Menu para carregar um jogo.");
+
+        SceneManager.LoadScene("Menu");
+    }
+
+    public void VoltarAoMenu()
+    {
+        Time.timeScale = 1f;
+
+        Debug.Log("Voltando ao Menu.");
+
+        SceneManager.LoadScene("Menu");
     }
 }
