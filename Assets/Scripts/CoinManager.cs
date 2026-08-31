@@ -118,14 +118,11 @@ public class CoinManager : MonoBehaviour
     }
 
     public void RestaurarMoedasDoCheckpoint(
-        HashSet<string> idsCheckpoint,
-        int quantidadeCheckpoint)
+    HashSet<string> idsCheckpoint,
+    int quantidadeCheckpoint)
     {
-        // Garante que as moedas já foram encontradas
-        if (moedas == null)
-        {
-            EncontrarMoedas();
-        }
+        // Garante que as moedas da cena atual foram encontradas
+        EncontrarMoedas();
 
         moedasColetadasIDs =
             new HashSet<string>(idsCheckpoint);
@@ -135,8 +132,10 @@ public class CoinManager : MonoBehaviour
 
         foreach (Coin moeda in moedas)
         {
-            if (moedasColetadasIDs.Contains(
-                moeda.GetID()))
+            if (moeda == null)
+                continue;
+
+            if (moedasColetadasIDs.Contains(moeda.GetID()))
             {
                 moeda.MarcarComoColetada();
             }
@@ -147,6 +146,13 @@ public class CoinManager : MonoBehaviour
         }
 
         AtualizarInterface();
+
+        Debug.Log(
+            "Moedas restauradas: " +
+            moedasColetadas +
+            " | IDs salvos: " +
+            moedasColetadasIDs.Count
+        );
     }
 
     private void AtualizarInterface()

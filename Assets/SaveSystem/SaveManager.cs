@@ -162,49 +162,79 @@ public class SaveManager : MonoBehaviour
         if (data == null)
             return;
 
-        if (!data.checkpointAtivado)
+        // Se o save possui checkpoint,
+        // restaura posição e moedas do checkpoint.
+        if (data.checkpointAtivado)
         {
+            Vector3 posicaoCheckpoint =
+                new Vector3(
+                    data.checkpointX,
+                    data.checkpointY,
+                    data.checkpointZ
+                );
+
+            HashSet<string> moedasColetadas =
+                new HashSet<string>(
+                    data.moedasColetadas
+                );
+
+            if (CheckpointManager.Instance != null)
+            {
+                CheckpointManager.Instance
+                    .RestaurarCheckpoint(
+                        posicaoCheckpoint,
+                        data.moedasNoCheckpoint,
+                        moedasColetadas
+                    );
+            }
+
+            if (CoinManager.Instance != null)
+            {
+                CoinManager.Instance
+                    .RestaurarMoedasDoCheckpoint(
+                        moedasColetadas,
+                        data.moedasNoCheckpoint
+                    );
+            }
+
             Debug.Log(
-                "O save não possui checkpoint."
+                "Save restaurado com checkpoint! " +
+                "Fase: " + data.fase +
+                " | Moedas: " +
+                data.moedasNoCheckpoint
             );
-
-            return;
         }
-
-        Vector3 posicaoCheckpoint =
-            new Vector3(
-                data.checkpointX,
-                data.checkpointY,
-                data.checkpointZ
-            );
-
-        HashSet<string> moedasColetadas =
-            new HashSet<string>(
-                data.moedasColetadas
-            );
-
-        if (CheckpointManager.Instance != null)
+        else
         {
-            CheckpointManager.Instance
-                .RestaurarCheckpoint(
-                    posicaoCheckpoint,
-                    data.moedasNoCheckpoint,
-                    moedasColetadas
-                );
-        }
+            // O save não possui checkpoint.
+            // Nesse caso, não tentamos restaurar uma posição
+            // que não existe.
+            //
+            // Mas ainda restauramos as moedas salvas.
 
-        if (CoinManager.Instance != null)
-        {
-            CoinManager.Instance
-                .RestaurarMoedasDoCheckpoint(
-                    moedasColetadas,
-                    data.moedasNoCheckpoint
+            HashSet<string> moedasColetadas =
+                new HashSet<string>(
+                    data.moedasColetadas
                 );
-        }
 
-        Debug.Log(
-            "Save restaurado com sucesso! " +
-            "Fase: " + data.fase
-        );
+            if (CoinManager.Instance != null)
+            {
+                CoinManager.Instance
+                    .RestaurarMoedasDoCheckpoint(
+                        moedasColetadas,
+                        data.moedasNoCheckpoint
+                    );
+            }
+
+            Debug.Log(
+                "Save restaurado sem checkpoint. " +
+                "Fase: " + data.fase +
+                " | Moedas: " +
+                data.moedasNoCheckpoint
+            );
+        }
     }
+
+
 }
+
