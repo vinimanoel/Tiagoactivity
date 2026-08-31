@@ -11,12 +11,18 @@ public class SlotUI : MonoBehaviour
     public TextMeshProUGUI textoTitulo;
     public TextMeshProUGUI textoInformacoes;
 
+    public Button botaoSalvar;
     public Button botaoCarregar;
     public Button botaoApagar;
 
     private void Start()
     {
         Atualizar();
+
+        if (botaoSalvar != null)
+        {
+            botaoSalvar.onClick.AddListener(SalvarSlot);
+        }
 
         if (botaoCarregar != null)
         {
@@ -40,26 +46,31 @@ public class SlotUI : MonoBehaviour
             return;
         }
 
+        textoTitulo.text =
+            "SLOT " + (numeroSlot + 1);
+
         bool existe =
             SaveManager.Instance.ExisteSave(numeroSlot);
 
+        Debug.Log(
+            "Verificando Slot " +
+            (numeroSlot + 1) +
+            " | Existe: " +
+            existe
+        );
+
         if (!existe)
         {
-            textoTitulo.text =
-                "SLOT " + (numeroSlot + 1);
+            textoInformacoes.text = "VAZIO";
 
-            textoInformacoes.text =
-                "VAZIO";
+            if (botaoSalvar != null)
+                botaoSalvar.interactable = true;
 
             if (botaoCarregar != null)
-            {
                 botaoCarregar.interactable = false;
-            }
 
             if (botaoApagar != null)
-            {
                 botaoApagar.interactable = false;
-            }
 
             return;
         }
@@ -69,48 +80,36 @@ public class SlotUI : MonoBehaviour
 
         if (data == null)
         {
-            textoInformacoes.text =
-                "SAVE INVÁLIDO";
+            textoInformacoes.text = "SAVE INVÁLIDO";
+
+            if (botaoSalvar != null)
+                botaoSalvar.interactable = true;
 
             if (botaoCarregar != null)
-            {
                 botaoCarregar.interactable = false;
-            }
 
             if (botaoApagar != null)
-            {
                 botaoApagar.interactable = false;
-            }
 
             return;
         }
 
-        textoTitulo.text =
-            "SLOT " + (numeroSlot + 1);
-
         textoInformacoes.text =
             "Fase: " + data.fase +
-            "\nMoedas: " +
-            data.moedasNoCheckpoint;
+            "\nMoedas: " + data.moedasNoCheckpoint;
+
+        if (botaoSalvar != null)
+            botaoSalvar.interactable = true;
 
         if (botaoCarregar != null)
-        {
             botaoCarregar.interactable = true;
-        }
 
         if (botaoApagar != null)
-        {
             botaoApagar.interactable = true;
-        }
     }
 
-    private void CarregarSlot()
+    private void SalvarSlot()
     {
-        Debug.Log(
-            "Carregando Slot " +
-            (numeroSlot + 1)
-        );
-
         if (SaveManager.Instance == null)
         {
             Debug.LogWarning(
@@ -120,17 +119,56 @@ public class SlotUI : MonoBehaviour
             return;
         }
 
+        Debug.Log(
+            "SALVANDO NO SLOT " +
+            (numeroSlot + 1)
+        );
+
+        SaveManager.Instance.SalvarJogo(numeroSlot);
+
+        // Atualiza a interface imediatamente
+        Atualizar();
+
+        Debug.Log(
+            "SLOT " +
+            (numeroSlot + 1) +
+            " SALVO!"
+        );
+    }
+
+    private void CarregarSlot()
+    {
+        if (SaveManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "SaveManager não encontrado."
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            "TENTANDO CARREGAR SLOT " +
+            (numeroSlot + 1)
+        );
+
         SaveData data =
             SaveManager.Instance.CarregarJogo(numeroSlot);
 
         if (data == null)
         {
             Debug.LogWarning(
-                "Não foi possível carregar o slot."
+                "Não foi possível carregar o Slot " +
+                (numeroSlot + 1)
             );
 
             return;
         }
+
+        Debug.Log(
+            "Slot carregado. Fase salva: " +
+            data.fase
+        );
 
         if (SaveLoader.Instance == null)
         {
@@ -141,29 +179,31 @@ public class SlotUI : MonoBehaviour
             return;
         }
 
-        // Guarda o save para restaurar depois que a Fase1 carregar
         SaveLoader.Instance.PrepararSave(data);
 
-        // Garante que o jogo não fique pausado
         Time.timeScale = 1f;
 
-        // Vai para a Fase1
-        SceneManager.LoadScene("Fase1");
-
-        Debug.Log(
-            "Slot " +
-            (numeroSlot + 1) +
-            " preparado para carregamento!"
-        );
+        if (data.fase == 1)
+        {
+            Debug.Log("Abrindo Fase1...");
+            SceneManager.LoadScene("Fase1");
+        }
+        else if (data.fase == 2)
+        {
+            Debug.Log("Abrindo Fase2...");
+            SceneManager.LoadScene("Fase2");
+        }
+        else
+        {
+            Debug.LogWarning(
+                "Fase inválida no save: " +
+                data.fase
+            );
+        }
     }
 
     private void ApagarSlot()
     {
-        Debug.Log(
-            "Apagando Slot " +
-            (numeroSlot + 1)
-        );
-
         if (SaveManager.Instance == null)
         {
             Debug.LogWarning(
@@ -173,15 +213,19 @@ public class SlotUI : MonoBehaviour
             return;
         }
 
+        Debug.Log(
+            "APAGANDO SLOT " +
+            (numeroSlot + 1)
+        );
+
         SaveManager.Instance.ApagarSave(numeroSlot);
 
         Atualizar();
 
         Debug.Log(
-            "Slot " +
+            "SLOT " +
             (numeroSlot + 1) +
-            " apagado!"
+            " APAGADO!"
         );
     }
 }
-

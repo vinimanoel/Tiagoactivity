@@ -13,6 +13,7 @@ public class SaveLoader : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+
             DontDestroyOnLoad(gameObject);
 
             SceneManager.sceneLoaded += AoCarregarCena;
@@ -27,20 +28,36 @@ public class SaveLoader : MonoBehaviour
     {
         saveParaRestaurar = data;
 
-        Debug.Log("Save preparado para restauração.");
+        Debug.Log(
+            "Save preparado. Fase: " + data.fase
+        );
     }
 
     private void AoCarregarCena(
         Scene cena,
         LoadSceneMode modo)
     {
-        if (cena.name != "Fase1")
-            return;
-
         if (saveParaRestaurar == null)
             return;
 
-        Debug.Log("Fase1 carregada. Restaurando save...");
+        string nomeFaseEsperada = "";
+
+        if (saveParaRestaurar.fase == 1)
+        {
+            nomeFaseEsperada = "Fase1";
+        }
+        else if (saveParaRestaurar.fase == 2)
+        {
+            nomeFaseEsperada = "Fase2";
+        }
+
+        if (cena.name != nomeFaseEsperada)
+            return;
+
+        Debug.Log(
+            "Cena carregada: " + cena.name +
+            ". Restaurando save..."
+        );
 
         if (SaveManager.Instance != null)
         {
@@ -60,4 +77,3 @@ public class SaveLoader : MonoBehaviour
         }
     }
 }
-

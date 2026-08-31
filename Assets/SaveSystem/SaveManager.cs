@@ -1,5 +1,7 @@
+
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SaveManager : MonoBehaviour
 {
@@ -20,10 +22,46 @@ public class SaveManager : MonoBehaviour
 
     public void SalvarJogo(int slot)
     {
+        string cenaAtual =
+            SceneManager.GetActiveScene().name;
+
         SaveData data = new SaveData();
 
-        data.fase = 1;
+        // Descobre em qual fase o jogador está
+        if (cenaAtual == "Fase1")
+        {
+            data.fase = 1;
+        }
+        else if (cenaAtual == "Fase2")
+        {
+            data.fase = 2;
+        }
+        
 
+    else
+    {
+        // No Menu, usa o autosave como base
+        SaveData autosave =
+            SaveSystem.LoadGame(0);
+
+        if (autosave == null)
+        {
+            Debug.LogWarning(
+                "Não existe autosave para copiar."
+            );
+
+            return;
+        }
+
+        data = autosave;
+
+        Debug.Log(
+            "Save copiado do Autosave."
+        );
+    }
+                
+
+        // Salva os dados do checkpoint
         if (CheckpointManager.Instance != null &&
             CheckpointManager.Instance.TemCheckpoint())
         {
@@ -63,16 +101,46 @@ public class SaveManager : MonoBehaviour
             }
         }
 
+        // ==============================
+        // SALVA NO SLOT ESCOLHIDO
+        // ==============================
+
         SaveSystem.SaveGame(data, slot);
+
+        Debug.Log(
+            "Jogo salvo no Slot " +
+            (slot + 1) +
+            " | Fase: " +
+            data.fase
+        );
+
+        // ==============================
+        // ATUALIZA O AUTOSAVE
+        // ==============================
+
+        if (slot != 0)
+        {
+            SaveSystem.SaveGame(data, 0);
+
+            Debug.Log(
+                "Autosave atualizado pelo Slot " +
+                (slot + 1)
+            );
+        }
     }
 
     public SaveData CarregarJogo(int slot)
     {
-        SaveData data = SaveSystem.LoadGame(slot);
+        SaveData data =
+            SaveSystem.LoadGame(slot);
 
         if (data == null)
         {
-            Debug.Log("Não foi possível carregar o jogo.");
+            Debug.Log(
+                "Não foi possível carregar o Slot " +
+                (slot + 1)
+            );
+
             return null;
         }
 
@@ -88,6 +156,7 @@ public class SaveManager : MonoBehaviour
     {
         SaveSystem.DeleteSave(slot);
     }
+
     public void RestaurarSave(SaveData data)
     {
         if (data == null)
@@ -95,7 +164,10 @@ public class SaveManager : MonoBehaviour
 
         if (!data.checkpointAtivado)
         {
-            Debug.Log("O save não possui checkpoint.");
+            Debug.Log(
+                "O save não possui checkpoint."
+            );
+
             return;
         }
 
@@ -111,21 +183,28 @@ public class SaveManager : MonoBehaviour
                 data.moedasColetadas
             );
 
-        CheckpointManager.Instance.RestaurarCheckpoint(
-            posicaoCheckpoint,
-            data.moedasNoCheckpoint,
-            moedasColetadas
-        );
+        if (CheckpointManager.Instance != null)
+        {
+            CheckpointManager.Instance
+                .RestaurarCheckpoint(
+                    posicaoCheckpoint,
+                    data.moedasNoCheckpoint,
+                    moedasColetadas
+                );
+        }
 
         if (CoinManager.Instance != null)
         {
-            CoinManager.Instance.RestaurarMoedasDoCheckpoint(
-                moedasColetadas,
-                data.moedasNoCheckpoint
-            );
+            CoinManager.Instance
+                .RestaurarMoedasDoCheckpoint(
+                    moedasColetadas,
+                    data.moedasNoCheckpoint
+                );
         }
 
-        Debug.Log("Save restaurado com sucesso!");
+        Debug.Log(
+            "Save restaurado com sucesso! " +
+            "Fase: " + data.fase
+        );
     }
-
 }

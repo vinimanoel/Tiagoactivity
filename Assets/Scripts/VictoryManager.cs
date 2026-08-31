@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
@@ -26,10 +27,14 @@ public class VictoryManager : MonoBehaviour
 
     private void Start()
     {
+        vitoriaAtiva = false;
+
         if (painelVitoria != null)
         {
             painelVitoria.SetActive(false);
         }
+
+        Time.timeScale = 1f;
     }
 
     public void MostrarVitoria()
@@ -39,7 +44,12 @@ public class VictoryManager : MonoBehaviour
 
         vitoriaAtiva = true;
 
-        int moedas = CoinManager.Instance.GetMoedas();
+        int moedas = 0;
+
+        if (CoinManager.Instance != null)
+        {
+            moedas = CoinManager.Instance.GetMoedas();
+        }
 
         Coin[] moedasDaFase = FindObjectsByType<Coin>(
             FindObjectsSortMode.None
@@ -79,6 +89,29 @@ public class VictoryManager : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        SceneManager.LoadScene("Fase2");
+        string cenaAtual =
+            SceneManager.GetActiveScene().name;
+
+        // Terminou a Fase 1 → vai para a Fase 2
+        if (cenaAtual == "Fase1")
+        {
+            SceneManager.LoadScene("Fase2");
+        }
+        // Terminou a Fase 2 → termina o jogo
+        else if (cenaAtual == "Fase2")
+        {
+            EncerrarJogo();
+        }
+    }
+
+    private void EncerrarJogo()
+    {
+        Debug.Log("JOGO FINALIZADO!");
+
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 }
